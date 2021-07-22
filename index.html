@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Speed Scrubber</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="wrapper">
+    <video class="flex" width="765" height="430" src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" loop controls></video>
+    <div class="speed">
+      <div class="speed-bar">1×</div>
+    </div>
+  </div>
+
+<script>
+    const mediaPlayer = document.querySelector(".flex");
+    const controller = document.querySelector(".speed");
+    const controllerCoords = controller.getBoundingClientRect();
+    const barController = document.querySelector(".speed-bar")
+    const barControllerCoords = barController.getBoundingClientRect();
+    const dividerKeyNumber = controller.getBoundingClientRect().height / 4;
+    let isDown = false;
+    let startY;
+
+    controller.addEventListener("mousedown", (e) => {
+        isDown = true;
+        startY = e.pageY - controller.offsetTop;
+        const percentage = parseFloat(((startY * 100) / controllerCoords.height).toFixed(1));
+        barController.style.height = `${percentage}%`
+        console.log("click at: ", startY)
+        mediaPlayer.playbackRate = getTween(0, 4, percentage);
+        console.log({ rate: getTween(0, 4, percentage) })
+    })
+    document.addEventListener("mouseup", () => {
+        isDown = false;
+        console.log("mouseUp")
+    })
+/* 
+    controller.addEventListener("mouseout", () => {
+        isDown = false;
+        console.log("mouseOut");
+    }) */
+
+    controller.addEventListener("mousemove", (e) => {
+        if(!isDown) return
+        e.preventDefault();
+        const walk = (e.pageY - controller.offsetTop) - startY;
+        const percentage = parseFloat((((e.pageY - controller.offsetTop) * 100) / controllerCoords.height).toFixed(1));
+        console.log(percentage)
+        mediaPlayer.playbackRate = getTween(0, 4, percentage);
+        console.log(mediaPlayer.playbackRate)
+        barController.innerText = `${mediaPlayer.playbackRate}×`;
+        barController.style.height = `${percentage}%`;
+    })
+
+    function getTween(b, e, i) {
+        return (b + ((i/99) * (e-b))).toFixed(1);
+    }
+
+</script>
+</body>
+</html>
